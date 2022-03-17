@@ -1,12 +1,15 @@
 pan();
 async function pan() {
   const panier = JSON.parse(localStorage.getItem("items")); // la création d'une variable contenant les informations du locale storage || ( localStorage.getItem('panier') permet de récuperer la valeur lié à la clé
-
+ if(!panier){
+        return
+    }
   for (let canape of panier) {
+   
     const res = await fetch("http://localhost:3000/api/products/" + canape.id); // réponde de l'API
     let response = await res.json(); // lire réponde de l'API
 
-    const section = document.getElementById("cart__items"); // ajout de la class / 'cart__items est un string = une chaine de caractère
+    const section = document.getElementById("cart__items"); // récupère de la class / 'cart__items est un string = une chaine de caractère
     const article = document.createElement("article"); //création de l'article
     const divImg = document.createElement("div"); //création de la div
     const img = document.createElement("img"); //création de l'image
@@ -22,13 +25,13 @@ async function pan() {
     const divDel = document.createElement("div"); //création du p
     const pDel = document.createElement("p"); //création du p
 
+
     img.src = response.imageUrl; // inscription de l'image
     img.alt = response.altTxt; //inscription du alt de l'image
     h2.textContent = response.name; //inscription du nom
     pColor.textContent = canape.color; //inscription de la couleur
     pPrice.textContent = response.price + " €"; //inscription du prix
     pQty.textContent = "Qté : "; //inscription de da quantité
-    pDel.textContent = "Supprimer";
 
     article.classList.add("cart__item"); //ajout de la classe à l'article
     divImg.classList.add("cart__item__img"); // ajout de la classe au div
@@ -95,8 +98,6 @@ async function pan() {
   }
 }
 
-//appel de la fonction pan
-
 async function getDataById(id) {
   let url = `http://localhost:3000/api/products/${id}`;
 
@@ -130,85 +131,105 @@ async function total() {
 //remplissage du formulaire
 const submit = document.getElementById("order"); //récupère l'id de l'input
 
-submit.addEventListener("click", (e) => { //écoute l'évenement au click
+submit.addEventListener("click", (e) => {
+  //écoute l'évenement au click
   e.preventDefault(); //empêche le rafraichissement de la page
-  if (regex() === false) { //
+  if (regex() === false) {
+    //
     const panier = JSON.parse(localStorage.getItem("items")); // la création d'une variable contenant les informations du locale storage || ( localStorage.getItem('panier') permet de récuperer la valeur lié à la clé
 
-    let idProducts = [];//création d'un tableau vide d'id des canpé
-    for (let item of panier)// remplissage du tableau id product grace à l'id des items récuperer dans le panier
-      idProducts.push(item.id)
-    const request = {// création de l'objet demander pour la requète avec tous les élements nécessaires
+    let idProducts = []; //création d'un tableau vide d'id des canpé
+    for (let item of panier) // remplissage du tableau id product grace à l'id des items récuperer dans le panier
+      idProducts.push(item.id);
+    const request = {
+      // création de l'objet demander pour la requète avec tous les élements nécessaires
       contact: {
-        firstName: document.getElementById('firstName').value,
+        firstName: document.getElementById("firstName").value,
         lastName: document.getElementById("lastName").value,
         address: document.getElementById("address").value,
         city: document.getElementById("city").value,
         email: document.getElementById("email").value,
       },
-      products: idProducts
-    }
-    const options = {// création des paramètres du fetch
-      method: 'POST',
+      products: idProducts,
+    };
+    const options = {
+      // création des paramètres du fetch
+      method: "POST",
       body: JSON.stringify(request),
-      headers: {// accepte d'envoyer un json
-        'Accept': 'application/json',
-        "Content-Type": "application/json"
+      headers: {
+        // accepte d'envoyer un json
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
-    }
-    fetch("http://localhost:3000/api/products/order", options)//
+    };
+    fetch("http://localhost:3000/api/products/order", options) //
       .then((response) => response.json())
-      .then((data) => {//récupère la réponse
+      .then((data) => {
+        //récupère la réponse
         console.log(data);
-        localStorage.clear();// vider le locastorage
-        localStorage.setItem("orderId", data.orderId);// envoie l'order id dans le locale storage 
+        // localStorage.clear(); // vider le locastorage
+        localStorage.setItem("orderId", data.orderId); // envoie l'order id dans le locale storage
 
-        document.location.href = "confirmation.html";// redirection vers la page de confirmation
+        document.location.href = "confirmation.html"; // redirection vers la page de confirmation
       })
       .catch((err) => {
         alert("Problème avec fetch : " + err.message);
       });
   } else {
-    console.log('ko')
+    console.log("ko");
   }
 });
 
 function regex() {
-  const firstName = document.getElementById('firstName').value
+  const firstName = document.getElementById("firstName").value;
   const lastName = document.getElementById("lastName").value;
   const address = document.getElementById("address").value;
   const city = document.getElementById("city").value;
   const email = document.getElementById("email").value;
 
+  const erFn = document.getElementById("firstNameErrorMsg");
+  const erLn = document.getElementById("lastNameErrorMsg");
+  const erAd = document.getElementById("addressErrorMsg");
+  const erCi = document.getElementById("cityErrorMsg");
+  const erEm = document.getElementById("emailErrorMsg");
+  
+  erLn.classList.add("firstNameErrorMsg");
+  erCi.classList.add("firstNameErrorMsg");
+  erEm.classList.add("firstNameErrorMsg");
+  erFn.classList.add("firstNameErrorMsg");
   let error = false;
 
   if (!firstName.match(/^[a-zA-Z]*$/)) {
+    erFn.textContent = "erreur dans le formulaire";
     console.log(firstName);
-    console.log('erreur1')
+
     //
     error = true;
   }
   if (!lastName.match(/^[a-zA-Z]*$/)) {
     console.log(lastName);
-    console.log('erreur2')
+    erLn.textContent = "erreur dans le formulaire";
+
     //
     error = true;
   }
   if (!address.match(/^[a-zA-Z0-9\.\s]*$/)) {
     console.log(address);
-    console.log('erreur3')
+    erAd.textContent = "erreur dans le formulaire";
+
     //
     error = true;
   }
   if (!city.match(/^[a-zA-Z]*$/)) {
     console.log(city);
-    console.log('erreur4')
+    erCi.textContent = "erreur dans le formulaire";
     //
     error = true;
   }
   if (!email.match(/^[a-zA-Z0-9\.\_\-\\@]*$/)) {
     console.log(email);
-    console.log('erreur5')
+    erEm.textContent = "erreur dans le formulaire";
+
     //
     error = true;
   }

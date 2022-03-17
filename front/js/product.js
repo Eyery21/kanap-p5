@@ -65,6 +65,7 @@ async function demande() {// asynch (asynchrone = execute toutes les ligne en m�
       }
       if (otherCanap == true) { // si c'est un nouveau canapé, alors ajout dans le panier
         panier.push(infoCanap);
+        alert('ajouter au panier')
       }
 
       localStorage.setItem("items", JSON.stringify(panier)); //création de la clé dans le locale storage dans laquelle la valeur "panier" est attribubé pour la valeur
